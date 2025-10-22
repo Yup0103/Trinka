@@ -1,82 +1,48 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import type { ParaphraseResult } from "../types";
 
-const API_KEY = process.env.API_KEY;
+// Mock paraphrase results for demonstration
+const mockParaphraseResults: Record<string, ParaphraseResult> = {
+  default: {
+    formal: "Artificial intelligence represents an essential element of contemporary technological advancement, fundamentally altering human existence and professional activities. A principal advantage of AI lies in its capacity to mechanize routine and tedious operations, thereby liberating human capital for more sophisticated and innovative endeavors. Moreover, AI has contributed substantially to diverse sectors, improving operational effectiveness and output.",
+    concise: "AI is crucial to modern technology, changing how we live and work. It automates repetitive tasks, freeing people for complex work. AI enhances efficiency across industries.",
+    detailed: "Artificial intelligence (AI) has emerged as an indispensable component within the framework of contemporary technological infrastructure, fundamentally reshaping the paradigms of human existence and professional engagement. One of the most significant advantages offered by AI is its remarkable capability to automate repetitive and mundane operational tasks, thereby emancipating human intellectual resources to focus on more intricate and creative intellectual pursuits. Furthermore, AI has delivered substantial contributions across multiple industrial domains, significantly augmenting operational efficiency and overall productivity levels."
+  }
+};
 
-if (!API_KEY) {
-  console.warn("API_KEY is not set. AI features will not work.");
+// Mock compression results
+function generateMockCompression(text: string, targetWordCount: number): string {
+  const words = text.split(/\s+/).filter(word => word.length > 0);
+  const currentWordCount = words.length;
+
+  if (currentWordCount <= targetWordCount) {
+    return text; // Already shorter than target
+  }
+
+  // Simple mock compression - take first part of the text
+  const compressionRatio = targetWordCount / currentWordCount;
+  const charsToKeep = Math.floor(text.length * compressionRatio);
+  let compressed = text.substring(0, charsToKeep);
+
+  // Try to end at a word boundary
+  const lastSpace = compressed.lastIndexOf(' ');
+  if (lastSpace > 0) {
+    compressed = compressed.substring(0, lastSpace);
+  }
+
+  return compressed + '.';
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY });
-
 export async function paraphraseText(text: string): Promise<ParaphraseResult> {
-  if (!API_KEY) {
-    throw new Error("API key is not configured.");
-  }
-  
-  const prompt = `
-    Paraphrase the following academic text. Provide three distinct variations:
-    1.  **Formal**: A version that is more academic and formal in tone.
-    2.  **Concise**: A version that reduces the word count while preserving the core meaning.
-    3.  **Detailed**: A version that elaborates on the points for greater clarity.
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
 
-    Text to paraphrase:
-    "${text}"
-
-    Return the result as a single JSON object.
-  `;
-
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            formal: { type: Type.STRING },
-            concise: { type: Type.STRING },
-            detailed: { type: Type.STRING },
-          },
-          required: ["formal", "concise", "detailed"],
-        },
-      },
-    });
-
-    const jsonString = response.text.trim();
-    const result = JSON.parse(jsonString);
-    return result as ParaphraseResult;
-  } catch (error) {
-    console.error("Error calling Gemini API:", error);
-    throw new Error("Failed to get paraphrasing suggestions from the AI model.");
-  }
+  // Return mock results - in a real app, this would vary based on input text
+  return mockParaphraseResults.default;
 }
 
 export async function compressText(text: string, wordCount: number): Promise<string> {
-  if (!API_KEY) {
-    throw new Error("API key is not configured.");
-  }
-  
-  const prompt = `
-    Compress the following academic text to be as close as possible to ${wordCount} words.
-    Preserve the core meaning, key findings, and formal tone.
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1200));
 
-    Text to compress:
-    "${text}"
-
-    Return only the compressed text, with no extra formatting or commentary.
-  `;
-
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-    });
-
-    return response.text.trim();
-  } catch (error) {
-    console.error("Error calling Gemini API for compression:", error);
-    throw new Error("Failed to get compressed text from the AI model.");
-  }
+  return generateMockCompression(text, wordCount);
 }
