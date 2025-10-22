@@ -1,7 +1,0 @@
-{
-  "name": "AI-Powered Academic Writing Assistant",
-  "description": "An intelligent writing assistant that helps academic authors streamline manuscript preparation, refine content for plagiarism and AI detection, generate figures, and improve overall writing quality with advanced AI-powered tools.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
-}
